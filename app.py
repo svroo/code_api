@@ -30,7 +30,8 @@ async def getHome():
     return {"Index": "hola mundo"}
 
 
-@app.post("/getRecomendations", response_model=responseModel)
+# @app.post("/getRecomendations", response_model=responseModel)
+@app.post("/getRecomendations")
 async def recomendations(input: recomendation):
     tipo = input.typeRecomendation
     javaCode = input.javaCode
