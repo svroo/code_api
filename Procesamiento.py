@@ -49,7 +49,8 @@ expliques nada, que los nombres sigan la convención CammelCase y en ingles."
             if typeRecomendation.lower() == "metodos":
                 prompt = (
                     f"Dame un diccionario de python donde las claves sean los nombres actuales\
-de los {typeRecomendation} escritos por el usuario en el código: {code}, y los valores sean los nombres más descriptivos. No \
+de los {typeRecomendation} escritos por el usuario en el código: {code}, ignora los metodos propios\
+    del lenguaje java, los valores sean los nombres más descriptivos. No \
 expliques nada, que los nombres sigan la convención CammelCase y en ingles."
                 )
                 return prompt
@@ -57,7 +58,8 @@ expliques nada, que los nombres sigan la convención CammelCase y en ingles."
             if typeRecomendation.lower() == "variables":
                 prompt = (
                     f"Dame un diccionario de python donde las claves sean los nombres actuales\
-de las {typeRecomendation} escritos por el usuario en el código: {code}, y los valores sean los nombres más descriptivos. No \
+de las {typeRecomendation} escritos por el usuario en el código: {code}, ignora las variables que se usan en\
+    los ciclos, ignora los metodos propios de java, los valores sean los nombres más descriptivos. No \
 expliques nada, que los nombres sigan la convención CammelCase y en ingles."
                 )
                 return prompt
@@ -77,7 +79,11 @@ expliques nada, que los nombres sigan la convención CammelCase y en ingles."
             código y el valor nuevo es el que el modelo propuso.
         """
 
-        r = re.sub(r"```|python|\n", "", item)
+        # r = re.sub(r"```|python|\n", "", item)
+        # r = r.split(":")
+        match = re.search(r"```(.*?)```", item, re.DOTALL)
+        # print("Post sub: ", match.group(1).strip())
+        r = match.group(1).strip()
 
         if (
             "=" in r
@@ -99,7 +105,7 @@ expliques nada, que los nombres sigan la convención CammelCase y en ingles."
                 return ast.literal_eval(" ".join(item))
 
     def chatGroq(self):
-        print(f"Valores:\n{self.javaCode}\n{self.typeRecomendation}")
+        # print(f"Valores:\n{self.javaCode}\n{self.typeRecomendation}")
         client = Groq(api_key=APIKEY)
         prompt = self.getPrompt()
 
@@ -117,6 +123,7 @@ expliques nada, que los nombres sigan la convención CammelCase y en ingles."
             response = "".join(
                 chunk.choices[0].delta.content or "" for chunk in completition
             )
+            # print("Respuesta del modelo", response)
 
             if self.model.startswith("deepseek"):
                 response = re.split(pattern=r"</think>", string=response)[1]

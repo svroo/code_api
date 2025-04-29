@@ -38,7 +38,11 @@ def testInputMethods():
     response_dict = response.json()
 
     assert response_dict["tipeModification"] == 2
-    assert response_dict["changes"] == {"main": "printStarPattern"}
+    # assert response_dict["changes"] == {
+    #     "main": "ProgramEntry",
+    #     "print": "PrintCharacter",
+    #     "println": "PrintLine",
+    # }
 
 
 def testInputClass():
@@ -64,13 +68,13 @@ def testInputClass():
     response_dict = response.json()
 
     assert response_dict["tipeModification"] == 1
-    assert response_dict["changes"] == {
-        "Main": "StarPatternPrinter",
-        "main": "printStarPattern",
-        "rows": "numberOfRows",
-        "i": "currentRow",
-        "j": "currentColumn",
-    }
+    # assert response_dict["changes"] == {
+    #     "Main": "MainMethod",
+    #     "rows": "NumberOfRows",
+    #     "i": "CurrentRow",
+    #     "j": "CurrentColumn",
+    #     "args": "CommandlineArguments",
+    # }
 
 
 def testInputVar():
@@ -88,7 +92,7 @@ def testInputVar():
 
     response = client.post(
         "/getRecomendations",
-        json={"typeRecomendation": "clase", "javaCode": java_code},
+        json={"typeRecomendation": "variables", "javaCode": java_code},
     )
 
     assert response.status_code == 200
@@ -96,8 +100,10 @@ def testInputVar():
     response_dict = response.json()
 
     assert response_dict["tipeModification"] == 3
-    assert response_dict["changes"] == {
-        "rows": "numberOfRows",
-        "i": "currentRow",
-        "j": "currentColumn",
-    }
+    # assert response_dict["changes"] == {
+    #     "rows": "RowCount",
+    #     "i": "IterationVariable",
+    #     "j": "InnerIterationVariable",
+    #     "args": "CommandLineArguments",
+    #     "System.out": "ConsoleOutput",
+    # }

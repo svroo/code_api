@@ -43,6 +43,7 @@ async def recomendations(input: recomendation):
             )
 
             recomendations = classRecomendation.chatGroq()
+            # print(recomendations)
 
             dataReturn = {
                 "javaCode": input.javaCode,
