@@ -17,11 +17,10 @@ class getRecomendations:
     """Clase para obtener las recomendaciones para las clases, metodos y variables.
 
     Parms:
-        typeRecomendation (str): Tipo de nombre que se quiere. Default 'Clase'.
         javaCode (str): Código java del que se quiere obtener un mejor nombramiento.
     """
 
-    typeRecomendation: str = "clase"
+    # typeRecomendation: str = "clase"
     javaCode: str = None
     # model: str = "qwen-2.5-coder-32b"
     model: str = "llama3-8b-8192"
@@ -33,36 +32,62 @@ class getRecomendations:
             str: Si los valores no son None, retorna el prompt para el LLM.
         """
         code = self.javaCode if self.javaCode is not None else None
-        typeRecomendation = (
-            self.typeRecomendation if self.typeRecomendation is not None else None
-        )
+        # typeRecomendation = (
+        #     self.typeRecomendation if self.typeRecomendation is not None else None
+        # )
 
-        if code is not None and typeRecomendation is not None:
-            if typeRecomendation.lower() == "clase":
-                prompt = (
-                    f"Dame un diccionario de python donde las claves sean los nombres actuales\
-de la {typeRecomendation} en el código: {code}, y los valores sean son los nombres más descriptivos. No \
-expliques nada, que los nombres sigan la convención CammelCase y en ingles."
-                )
-                return prompt
+        a = {
+            "variables": {"x": "", "usrnm": ""},
+            "metodos": {"calculo": "", "getUsr": ""},
+            "clases": {"datosUsr": ""},
+        }
+        if code is not None:  # and typeRecomendation is not None:
+            prompt = f"""
+            Quiero que generes sugerencias de nombres siguiendo buenas prácticas de nomenclatura en Java.
+            Para el siguiente código, {a}
+            El formato de salida debe ser un JSON donde:
+            - La llave principal sea el tipo de elemento que se va a modificar: "variables", "métodos", "clases".
+            - El valor de cada llave principal sea otro JSON con pares clave-valor, donde:
+            - La clave sea el nombre actual del elemento.
+            - El valor sea la sugerencia de un nuevo nombre siguiendo buenas prácticas de legibilidad, significado y estilo.
 
-            if typeRecomendation.lower() == "metodos":
-                prompt = (
-                    f"Dame un diccionario de python donde las claves sean los nombres actuales\
-de los {typeRecomendation} escritos por el usuario en el código: {code}, ignora los metodos propios\
-    del lenguaje java, los valores sean los nombres más descriptivos. No \
-expliques nada, que los nombres sigan la convención CammelCase y en ingles."
-                )
-                return prompt
+            Reglas específicas:
+            - Usa `camelCase` para variables y métodos.
+            - Usa `PascalCase` para clases.
+            - Evita modificar el nombre del parámetro `args` en `public static void main(String[] args)`, ya que es una convención en Java.
+            - Genera nombres que sean lo suficientemente descriptivos sin ser excesivamente largos.
 
-            if typeRecomendation.lower() == "variables":
-                prompt = (
-                    f"Dame un diccionario de python donde las claves sean los nombres actuales\
-de las {typeRecomendation} escritos por el usuario en el código: {code}, ignora las variables que se usan en\
-    los ciclos, ignora los metodos propios de java, los valores sean los nombres más descriptivos. No \
-expliques nada, que los nombres sigan la convención CammelCase y en ingles."
-                )
-                return prompt
+            Ejemplo de entrada:
+            ```json
+            {a}
+            No expliques nada simplemente retorna la respuesta.
+            """
+            return prompt
+        #             if typeRecomendation.lower() == "clase":
+        #                 prompt = (
+        #                     f"Dame un diccionario de python donde las claves sean los nombres actuales\
+        # de la {typeRecomendation} en el código: {code}, y los valores sean son los nombres más descriptivos. No \
+        # expliques nada, que los nombres sigan la convención CammelCase y en ingles."
+        #                 )
+        #                 return prompt
+
+        #             if typeRecomendation.lower() == "metodos":
+        #                 prompt = (
+        #                     f"Dame un diccionario de python donde las claves sean los nombres actuales\
+        # de los {typeRecomendation} escritos por el usuario en el código: {code}, ignora los metodos propios\
+        #     del lenguaje java, los valores sean los nombres más descriptivos. No \
+        # expliques nada, que los nombres sigan la convención CammelCase y en ingles."
+        #                 )
+        #                 return prompt
+
+        #             if typeRecomendation.lower() == "variables":
+        #                 prompt = (
+        #                     f"Dame un diccionario de python donde las claves sean los nombres actuales\
+        # de las {typeRecomendation} escritos por el usuario en el código: {code}, ignora las variables que se usan en\
+        #     los ciclos, ignora los metodos propios de java, los valores sean los nombres más descriptivos. No \
+        # expliques nada, que los nombres sigan la convención CammelCase y en ingles."
+        #                 )
+        # return prompt
 
         return None
 
@@ -123,14 +148,27 @@ expliques nada, que los nombres sigan la convención CammelCase y en ingles."
             response = "".join(
                 chunk.choices[0].delta.content or "" for chunk in completition
             )
-            # print("Respuesta del modelo", response)
+            print("Respuesta del modelo", response)
 
             if self.model.startswith("deepseek"):
                 response = re.split(pattern=r"</think>", string=response)[1]
 
-            response = self.cleanDict(response)
+            # response = self.cleanDict(response)
 
-            return response
+            # return response
+            match = re.search(r"```(.*?)```", response, re.DOTALL)
+            r = match.group(1).strip()
+            index = None
+
+            if "{" in r:
+                index = r.index("{")
+
+            # print("after group", r)
+
+            if index is not None:
+                return ast.literal_eval(r[index:])
+
+            return None
 
         except Exception as e:
             print("Error con: ", e)

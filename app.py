@@ -5,16 +5,16 @@ from Procesamiento import getRecomendations
 
 app = FastAPI()
 
-tipeModification = {
-    "clase": 1,
-    "metodos": 2,
-    "variables": 3,
-}
+# tipeModification = {
+#     "clase": 1,
+#     "metodos": 2,
+#     "variables": 3,
+# }
 
 
 # Ejemplo de entrada
 class recomendation(BaseModel):
-    typeRecomendation: str
+    # typeRecomendation: str
     javaCode: str
 
 
@@ -33,26 +33,24 @@ async def getHome():
 # @app.post("/getRecomendations", response_model=responseModel)
 @app.post("/getRecomendations")
 async def recomendations(input: recomendation):
-    tipo = input.typeRecomendation
+    # tipo = input.typeRecomendation
     javaCode = input.javaCode
 
-    if isinstance(javaCode, str):  # and len(javaCode) >= 1:
+    if isinstance(javaCode, str) and len(javaCode) >= 1:
         if len(javaCode) >= 1:
-            classRecomendation = getRecomendations(
-                typeRecomendation=tipo, javaCode=javaCode
-            )
+            classRecomendation = getRecomendations(javaCode=javaCode)
 
             recomendations = classRecomendation.chatGroq()
             # print(recomendations)
 
             dataReturn = {
                 "javaCode": input.javaCode,
-                "tipeModification": tipeModification[input.typeRecomendation.lower()],
+                # "tipeModification": tipeModification[input.typeRecomendation.lower()],
                 "changes": recomendations,
             }
 
             return dataReturn
         else:
-            return None
+            return "Valor no valido"
     else:
         return None

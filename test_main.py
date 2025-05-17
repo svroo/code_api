@@ -30,19 +30,19 @@ def testInputMethods():
     )
 
     assert response.status_code == 200
-    # assert response.json() == {
-    #     "javaCode": "public class Main { public static void main(String[] args) {  int rows = 5;   for (int i = 1; i <= rows; ++i) {   for (int j = 1; j <= i; ++j) {   System.out.print('*');   }  System.out.println();  } } }",
-    #     "tipeModification": 2,
-    #     "changes": {"main": "printStarPattern"},
-    # }
+    assert response.json() == {
+        "javaCode": "public class Main { public static void main(String[] args) {  int rows = 5;   for (int i = 1; i <= rows; ++i) {   for (int j = 1; j <= i; ++j) {   System.out.print('*');   }  System.out.println();  } } }",
+        "tipeModification": 2,
+        "changes": {"main": "printStarPattern"},
+    }
     response_dict = response.json()
 
     assert response_dict["tipeModification"] == 2
-    # assert response_dict["changes"] == {
-    #     "main": "ProgramEntry",
-    #     "print": "PrintCharacter",
-    #     "println": "PrintLine",
-    # }
+    assert response_dict["changes"] == {
+        "main": "ProgramEntry",
+        "print": "PrintCharacter",
+        "println": "PrintLine",
+    }
 
 
 def testInputClass():
@@ -68,7 +68,14 @@ def testInputClass():
     response_dict = response.json()
 
     assert response_dict["tipeModification"] == 1
-    # assert response_dict["changes"] == {
+    respuesta = response_dict["changes"]
+
+    assert "Main" in respuesta.keys()
+    assert respuesta["Main"] == "MainMethod"
+    assert "rows" in respuesta.keys()
+    assert "rows" == "NumberOfRows"
+
+    # == {
     #     "Main": "MainMethod",
     #     "rows": "NumberOfRows",
     #     "i": "CurrentRow",
@@ -100,10 +107,12 @@ def testInputVar():
     response_dict = response.json()
 
     assert response_dict["tipeModification"] == 3
-    # assert response_dict["changes"] == {
-    #     "rows": "RowCount",
-    #     "i": "IterationVariable",
-    #     "j": "InnerIterationVariable",
-    #     "args": "CommandLineArguments",
-    #     "System.out": "ConsoleOutput",
-    # }
+    respuesta = response_dict["changes"]
+
+    assert respuesta == {
+        "rows": "RowCount",
+        "i": "IterationVariable",
+        "j": "InnerIterationVariable",
+        "args": "CommandLineArguments",
+        "System.out": "ConsoleOutput",
+    }
