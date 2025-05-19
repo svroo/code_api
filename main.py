@@ -186,7 +186,7 @@ app = FastAPI()
 
 
 # Ejemplo de entrada
-class recomendation(BaseModel):
+class Recomendation(BaseModel):
     # typeRecomendation: str
     javaCode: str
 
@@ -205,25 +205,28 @@ class responseModel(BaseModel):
 
 # @app.post("/getRecomendations", response_model=responseModel)
 @app.post("/getRecomendations")
-async def recomendations(recomendation: recomendation):
+async def recomendations(recomendation: Recomendation):
     # tipo = input.typeRecomendation
-    javaCode = recomendation.javaCode
 
-    if isinstance(javaCode, str) and len(javaCode) >= 1:
-        if len(javaCode) >= 1:
-            classRecomendation = getRecomendations(javaCode=javaCode)
+    return {"message": "Funciona", "javaCode": recomendation.javaCode}
 
-            recomendations = classRecomendation.chatGroq()
-            # print(recomendations)
+    # javaCode = recomendation.javaCode
 
-            dataReturn = {
-                "javaCode": input.javaCode,
-                # "tipeModification": tipeModification[input.typeRecomendation.lower()],
-                "changes": recomendations,
-            }
+    # if isinstance(javaCode, str) and len(javaCode) >= 1:
+    #     if len(javaCode) >= 1:
+    #         classRecomendation = getRecomendations(javaCode=javaCode)
 
-            return dataReturn
-        else:
-            return "Valor no valido"
-    else:
-        return None
+    #         recomendations = classRecomendation.chatGroq()
+    #         # print(recomendations)
+
+    #         dataReturn = {
+    #             "javaCode": input.javaCode,
+    #             # "tipeModification": tipeModification[input.typeRecomendation.lower()],
+    #             "changes": recomendations,
+    #         }
+
+    #         return dataReturn
+    #     else:
+    #         return "Valor no valido"
+    # else:
+    #     return None
