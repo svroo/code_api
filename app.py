@@ -204,7 +204,7 @@ class responseModel(BaseModel):
 
 
 # @app.post("/getRecomendations", response_model=responseModel)
-@app.post("/")
+@app.get("/")
 async def recomendations(input: recomendation):
     # tipo = input.typeRecomendation
     javaCode = input.javaCode
