@@ -45,7 +45,7 @@ class getRecomendations:
         if code is not None:  # and typeRecomendation is not None:
             prompt = f"""
             Quiero que generes sugerencias de nombres siguiendo buenas prácticas de nomenclatura en Java.
-            Para el siguiente código, {a}
+            Para el siguiente código, {self.javaCode}
             El formato de salida debe ser un JSON donde:
             - La llave principal sea el tipo de elemento que se va a modificar: "variables", "métodos", "clases".
             - El valor de cada llave principal sea otro JSON con pares clave-valor, donde:
