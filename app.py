@@ -205,9 +205,9 @@ class responseModel(BaseModel):
 
 # @app.post("/getRecomendations", response_model=responseModel)
 @app.get("/")
-async def recomendations(input: recomendation):
+async def recomendations(recomendation: recomendation):
     # tipo = input.typeRecomendation
-    javaCode = input.javaCode
+    javaCode = recomendation.javaCode
 
     if isinstance(javaCode, str) and len(javaCode) >= 1:
         if len(javaCode) >= 1:
