@@ -21,10 +21,11 @@ class getRecomendations:
         javaCode (str): Código java del que se quiere obtener un mejor nombramiento.
     """
 
-    # typeRecomendation: str = "clase"
-    javaCode: str = None
-    # model: str = "qwen-2.5-coder-32b"
-    model: str = "llama3-8b-8192"
+    def __init__(self):
+        # typeRecomendation: str = "clase"
+        self.javaCode: str = None
+        # model: str = "qwen-2.5-coder-32b"
+        self.model: str = "llama3-8b-8192"
 
     def getPrompt(self) -> str:
         """Función que realiza el prompt para el LLM de acuerdo a los parametros de entrada
