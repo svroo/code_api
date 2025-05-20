@@ -197,9 +197,11 @@ class responseModel(BaseModel):
     changes: dict
 
 
-# @app.get("/")
-# async def getHome():
-#     return {"Index": "hola mundo"}
+a = {
+    "variables": {"x": "", "usrnm": ""},
+    "metodos": {"calculo": "", "getUsr": ""},
+    "clases": {"datosUsr": ""},
+}
 
 
 # @app.post("/getRecomendations", response_model=responseModel)
@@ -214,18 +216,78 @@ async def recomendations(recomendation: Recomendation):
 
     if isinstance(javaCode, str) and len(javaCode) >= 1:
         if len(javaCode) >= 1:
-            classRecomendation = getRecomendations(javaCode=javaCode)
+            prompt = f"""
+                Quiero que generes sugerencias de nombres siguiendo buenas prácticas de nomenclatura en Java.
+                Para el siguiente código, {javaCode}
+                El formato de salida debe ser un JSON donde:
+                - La llave principal sea el tipo de elemento que se va a modificar: "variables", "métodos", "clases".
+                - El valor de cada llave principal sea otro JSON con pares clave-valor, donde:
+                - La clave sea el nombre actual del elemento.
+                - El valor sea la sugerencia de un nuevo nombre siguiendo buenas prácticas de legibilidad, significado y estilo.
 
-            recomendations = classRecomendation.chatGroq()
-            print("instancia: ", recomendations)
+                Reglas específicas:
+                - Usa `camelCase` para variables y métodos.
+                - Usa `PascalCase` para clases.
+                - Evita modificar el nombre del parámetro `args` en `public static void main(String[] args)`, ya que es una convención en Java.
+                - Genera nombres que sean lo suficientemente descriptivos sin ser excesivamente largos.
 
-            dataReturn = {
-                "javaCode": recomendation.javaCode,
-                # "tipeModification": tipeModification[input.typeRecomendation.lower()],
-                "changes": recomendations,
-            }
+                Ejemplo de entrada:
+                ```json
+                {a}
+                No expliques nada simplemente retorna la respuesta.
+                """
+            client = Groq(api_key=APIKEY)
+            try:
+                completition = client.chat.completions.create(
+                    model="llama3-8b-8192",
+                    messages=[{"role": "user", "content": prompt}],
+                    temperature=0.76,
+                    max_completion_tokens=1024,
+                    top_p=1,
+                    stream=True,
+                    stop=None,
+                )
 
-            return dataReturn
+                response = "".join(
+                    chunk.choices[0].delta.content or "" for chunk in completition
+                )
+                print("Respuesta del modelo", response)
+
+                # if self.model.startswith("deepseek"):
+                #     response = re.split(pattern=r"</think>", string=response)[1]
+
+                # response = self.cleanDict(response)
+
+                # return response
+                if "`" in response:
+                    match = re.search(r"```(.*?)```", response, re.DOTALL)
+                    # print(match)
+                    response = match.group(1).strip()
+
+                index = None
+
+                # if ":" in response:
+                # response = response.split("")[1]
+
+                if "{" in response:
+                    index = response.index("{")
+
+                if index is not None:
+                    # print("after group", ast.literal_eval(response[index:]))
+                    # return ast.literal_eval(response[index:])
+
+                    dataReturn = {
+                        "javaCode": recomendation.javaCode,
+                        # "tipeModification": tipeModification[input.typeRecomendation.lower()],
+                        "changes": response,
+                    }
+                    return dataReturn
+
+                return None
+
+            except Exception as e:
+                print("Error con: ", e)
+                return None
         else:
             return "Valor no valido"
     else:
