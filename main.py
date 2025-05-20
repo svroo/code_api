@@ -208,25 +208,25 @@ class responseModel(BaseModel):
 async def recomendations(recomendation: Recomendation):
     # tipo = input.typeRecomendation
 
-    return {"message": "Funciona", "javaCode": recomendation.javaCode}
+    # return {"message": "Funciona", "javaCode": recomendation.javaCode}
 
-    # javaCode = recomendation.javaCode
+    javaCode = recomendation.javaCode
 
-    # if isinstance(javaCode, str) and len(javaCode) >= 1:
-    #     if len(javaCode) >= 1:
-    #         classRecomendation = getRecomendations(javaCode=javaCode)
+    if isinstance(javaCode, str) and len(javaCode) >= 1:
+        if len(javaCode) >= 1:
+            classRecomendation = getRecomendations(javaCode=javaCode)
 
-    #         recomendations = classRecomendation.chatGroq()
-    #         # print(recomendations)
+            recomendations = classRecomendation.chatGroq()
+            # print(recomendations)
 
-    #         dataReturn = {
-    #             "javaCode": input.javaCode,
-    #             # "tipeModification": tipeModification[input.typeRecomendation.lower()],
-    #             "changes": recomendations,
-    #         }
+            dataReturn = {
+                "javaCode": input.javaCode,
+                # "tipeModification": tipeModification[input.typeRecomendation.lower()],
+                "changes": recomendations,
+            }
 
-    #         return dataReturn
-    #     else:
-    #         return "Valor no valido"
-    # else:
-    #     return None
+            return dataReturn
+        else:
+            return "Valor no valido"
+    else:
+        return None
