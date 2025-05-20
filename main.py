@@ -23,9 +23,9 @@ class getRecomendations:
 
     def __init__(self):
         # typeRecomendation: str = "clase"
-        self.javaCode: str = None
+        self.javaCode = None
         # model: str = "qwen-2.5-coder-32b"
-        self.model: str = "llama3-8b-8192"
+        self.model = "llama3-8b-8192"
 
     def getPrompt(self) -> str:
         """Función que realiza el prompt para el LLM de acuerdo a los parametros de entrada
