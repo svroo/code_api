@@ -10,8 +10,8 @@ from pydantic import BaseModel
 
 load_dotenv()  # Cargamos el ambiente para localizar el archivo .env
 
-# APIKEY = os.getenv("MY_KEY")
-APIKEY = "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"
+APIKEY = os.getenv("MY_KEY")
+# APIKEY = "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"
 # from Procesamiento import
 
 
