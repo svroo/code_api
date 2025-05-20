@@ -1,8 +1,8 @@
 import ast
 import os
 import re
-from dataclasses import dataclass
 
+# from dataclasses import dataclass
 from dotenv import dotenv_values, load_dotenv
 from fastapi import FastAPI
 from groq import Groq
@@ -21,11 +21,11 @@ class getRecomendations:
         javaCode (str): Código java del que se quiere obtener un mejor nombramiento.
     """
 
-    def __init__(self):
+    def __init__(self, javaCode=None, model="llama3-8b-8192"):
         # typeRecomendation: str = "clase"
-        self.javaCode = None
+        self.javaCode = javaCode
         # model: str = "qwen-2.5-coder-32b"
-        self.model = "llama3-8b-8192"
+        self.model = model
 
     def getPrompt(self) -> str:
         """Función que realiza el prompt para el LLM de acuerdo a los parametros de entrada
@@ -152,23 +152,28 @@ class getRecomendations:
             )
             print("Respuesta del modelo", response)
 
-            if self.model.startswith("deepseek"):
-                response = re.split(pattern=r"</think>", string=response)[1]
+            # if self.model.startswith("deepseek"):
+            #     response = re.split(pattern=r"</think>", string=response)[1]
 
             # response = self.cleanDict(response)
 
             # return response
-            match = re.search(r"```(.*?)```", response, re.DOTALL)
-            r = match.group(1).strip()
+            if "`" in response:
+                match = re.search(r"```(.*?)```", response, re.DOTALL)
+                # print(match)
+                response = match.group(1).strip()
+
             index = None
 
-            if "{" in r:
-                index = r.index("{")
+            # if ":" in response:
+            # response = response.split("")[1]
 
-            # print("after group", r)
+            if "{" in response:
+                index = response.index("{")
 
             if index is not None:
-                return ast.literal_eval(r[index:])
+                print("after group", ast.literal_eval(response[index:]))
+                return ast.literal_eval(response[index:])
 
             return None
 
@@ -179,16 +184,9 @@ class getRecomendations:
 
 app = FastAPI()
 
-# tipeModification = {
-#     "clase": 1,
-#     "metodos": 2,
-#     "variables": 3,
-# }
-
 
 # Ejemplo de entrada
 class Recomendation(BaseModel):
-    # typeRecomendation: str
     javaCode: str
 
 
@@ -212,16 +210,17 @@ async def recomendations(recomendation: Recomendation):
     # return {"message": "Funciona", "javaCode": recomendation.javaCode}
 
     javaCode = recomendation.javaCode
+    # return {"codigo": javaCode}
 
     if isinstance(javaCode, str) and len(javaCode) >= 1:
         if len(javaCode) >= 1:
             classRecomendation = getRecomendations(javaCode=javaCode)
 
             recomendations = classRecomendation.chatGroq()
-            # print(recomendations)
+            print("instancia: ", recomendations)
 
             dataReturn = {
-                "javaCode": input.javaCode,
+                "javaCode": recomendation.javaCode,
                 # "tipeModification": tipeModification[input.typeRecomendation.lower()],
                 "changes": recomendations,
             }
