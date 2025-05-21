@@ -209,6 +209,7 @@ async def recomendations(recomendation: Recomendation):
                                 }
                                 return dataReturn
                         except Exception as e:
+                            print("Fallo al crear diccionario", e)
                             dataReturn = {
                                 "javaCode": recomendation.javaCode,
                                 # "tipeModification": tipeModification[input.typeRecomendation.lower()],
