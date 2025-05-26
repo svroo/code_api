@@ -66,24 +66,20 @@ async def recomendations(recomendation: Recomendation):
             if class_pattern.search(javaCode):
                 print("el codigo es clase")
                 prompt = f"""
-                    Quiero que generes sugerencias de nombres siguiendo buenas prácticas de nomenclatura en Java.
-                    Para el siguiente código, {javaCode}
-                    El formato de salida debe ser un JSON donde:
-                    - La llave principal sea el tipo de elemento que se va a modificar: "variables", "métodos", "clases".
-                    - El valor de cada llave principal sea otro JSON con pares clave-valor, donde:
-                    - La clave sea el nombre actual del elemento.
-                    - El valor sea la sugerencia de un nuevo nombre siguiendo buenas prácticas de legibilidad, significado y estilo.
+                Genera sugerencias de nombres siguiendo buenas prácticas de nomenclatura en Java para el codigo {javaCode} .
+                Devuelve un JSON con la estructura:
+                Claves principales: "variables", "metodos", "clases".
+                Cada clave contiene un objeto con pares "nombre_actual": "nombre_sugerido".
 
-                    Reglas específicas:
-                    - Usa `camelCase` para variables y métodos.
-                    - Usa `PascalCase` para clases.
-                    - Evita modificar el nombre del parámetro `args` en `public static void main(String[] args)`, ya que es una convención en Java.
-                    - Genera nombres que sean lo suficientemente descriptivos sin ser excesivamente largos.
-
-                    Ejemplo de entrada:
-                    {a}
-                    No expliques nada simplemente retorna la respuesta.
-                    """
+                Reglas:
+                Variables y métodos → camelCase.
+                Clases → PascalCase.
+                No renombrar args en main.
+                Nombres claros y descriptivos, no excesivamente largos.
+                No expliques nada, solo devuelve el JSON.
+                Ejemplo de entrada:
+                {a}
+                """
                 client = Groq(api_key=APIKEY)
                 try:
                     completition = client.chat.completions.create(
@@ -145,23 +141,18 @@ async def recomendations(recomendation: Recomendation):
                     print("El codigo contiene un metodo")
 
                     prompt = f"""
-                    Quiero que generes sugerencias de nombres siguiendo buenas prácticas de nomenclatura en Java.
-                    Para el siguiente código, {javaCode}
-                    El formato de salida debe ser un JSON donde:
-                    - La llave principal sea el tipo de elemento que se va a modificar: "variables", "métodos", "clases".
-                    - El valor de cada llave principal sea otro JSON con pares clave-valor, donde:
-                    - La clave sea el nombre actual del elemento.
-                    - El valor sea la sugerencia de un nuevo nombre siguiendo buenas prácticas de legibilidad, significado y estilo.
+                        Genera sugerencias de nombres siguiendo buenas prácticas de nomenclatura en Java para el codigo {javaCode}. Devuelve un JSON con la estructura:
+                        Claves principales: "variables", "metodos", "clases".
+                        Cada clave contiene un objeto con pares "nombre_actual": "nombre_sugerido".
 
-                    Reglas específicas:
-                    - Usa `camelCase` para variables y métodos.
-                    - Usa `PascalCase` para clases.
-                    - Evita modificar el nombre del parámetro `args` en `public static void main(String[] args)`, ya que es una convención en Java.
-                    - Genera nombres que sean lo suficientemente descriptivos sin ser excesivamente largos.
-
-                    Ejemplo de entrada:
-                    {a}
-                    No expliques nada simplemente retorna la respuesta.
+                        Reglas:
+                        Variables y métodos → camelCase.
+                        Clases → PascalCase.
+                        No renombrar args en main.
+                        Nombres claros y descriptivos, no excesivamente largos.
+                        No expliques nada, solo devuelve el JSON.
+                        Ejemplo de entrada:
+                        {a}
                     """
                     client = Groq(api_key=APIKEY)
                     try:
@@ -179,7 +170,7 @@ async def recomendations(recomendation: Recomendation):
                             chunk.choices[0].delta.content or ""
                             for chunk in completition
                         )
-                        print("Respuesta del modelo", response)
+                        # print("Respuesta del modelo", response)
 
                         # if self.model.startswith("deepseek"):
                         #     response = re.split(pattern=r"</think>", string=response)[1]
@@ -220,7 +211,38 @@ async def recomendations(recomendation: Recomendation):
                         print("Error con: ", e)
                         return {"Fallo": "Fallo en el metodo"}
                 else:
-                    return {"Error": "Codigo no valido"}
+                    client = Groq(api_key=APIKEY)
+                    prompt = f"""El siguiente código no contiene ni clases ni metodos, retorna un JSON donde la llave sea el valor actual y el valor
+                    sea el nuevo nombre siguiendo las siguientes reglas:
+                    Reglas:
+                        Variables y métodos → camelCase.
+                        Clases → PascalCase.
+                        No renombrar args en main.
+                        Nombres claros y descriptivos, no excesivamente largos.
+                        No expliques nada, solo devuelve el JSON.
+                    para el siguiente codigo: 
+                    {javaCode}
+                    """
+                    try:
+                        completition = client.chat.completions.create(
+                            model="llama3-8b-8192",
+                            messages=[{"role": "user", "content": prompt}],
+                            temperature=0.76,
+                            max_completion_tokens=1024,
+                            top_p=1,
+                            stream=True,
+                            stop=None,
+                        )
+
+                        response = "".join(
+                            chunk.choices[0].delta.content or ""
+                            for chunk in completition
+                        )
+
+                        return {"Error": response}
+                    except Exception as e:
+                        print("Error", e)
+                        return {"Error": "Codigo no valido"}
         else:
             return {"ERROR": "Valor no valido"}
     else:
