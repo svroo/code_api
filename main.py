@@ -212,8 +212,8 @@ async def recomendations(recomendation: Recomendation):
                         return {"Fallo": "Fallo en el metodo"}
                 else:
                     client = Groq(api_key=APIKEY)
-                    prompt = f"""El siguiente código no contiene ni clases ni metodos, retorna un JSON donde la llave sea el valor actual y el valor
-                    sea el nuevo nombre siguiendo las siguientes reglas:
+                    prompt = f"""El siguiente código no contiene ni clases ni metodos, retorna un JSON donde la llave sea el nombre actual y el valor
+                    sea el nuevo nombre, siguiendo las siguientes reglas:
                     Reglas:
                         Variables y métodos → camelCase.
                         Clases → PascalCase.
@@ -239,7 +239,13 @@ async def recomendations(recomendation: Recomendation):
                             for chunk in completition
                         )
 
-                        return {"Error": response}
+                        dataReturn = {
+                            "javaCode": recomendation.javaCode,
+                            # "tipeModification": tipeModification[input.typeRecomendation.lower()],
+                            "changes": response,
+                        }
+
+                        return dataReturn
                     except Exception as e:
                         print("Error", e)
                         return {"Error": "Codigo no valido"}
